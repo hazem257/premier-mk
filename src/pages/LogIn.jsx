@@ -45,7 +45,7 @@ export default function Login({ setIsLoggedIn }) {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4" style={{backgroundColor:"#0C0950"}}>
       <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
         <div className="img" style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"center"}}>
-          <img src="public/img.jpg" alt="premaier" style={{marginBottom:"25px"}} />
+          <img src="/public/img.jpg" alt="premaier" style={{marginBottom:"25px"}} />
         </div>
        
         <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
