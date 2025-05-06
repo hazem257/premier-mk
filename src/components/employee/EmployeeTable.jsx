@@ -81,7 +81,7 @@ const EmployeeTable = () => {
   };
 
   const handleDeleteUser = (id) => {
-    if (window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
+    if (window.confirm("هل أنت متأكد من حذف هذا الموظف ؟")) {
       setUsers(Employees.filter(Employee => Employee.id !== id));
     }
   };
@@ -111,7 +111,7 @@ const EmployeeTable = () => {
             className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2'
           >
             <Plus size={18} />
-            إضافة مستخدم
+            إضافة موظف 
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@ const EmployeeTable = () => {
         </table>
       </div>
 
-      {/* Modal for Add/Edit User */}
+      {/* Modal for Add/Edit EMPLOYEE */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <motion.div 
@@ -231,7 +231,7 @@ const EmployeeTable = () => {
               </div>
               
               <div className="mb-4">
-                <label className="block text-gray-300 text-sm mb-2">النقاط</label>
+                <label className="block text-gray-300 text-sm mb-2">المرتب</label>
                 <input
                   type="number"
                   name="points"
