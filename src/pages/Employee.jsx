@@ -15,7 +15,7 @@ const userStats = {
 const Employee = () => {
 	return (
 		<div className='flex-1 overflow-auto relative z-10'>
-			<Header title='المــسـتخـدمـيـن' />
+			<Header title='الــمـوظـفـيـن' />
 
 			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
 				{/* STATS */}
@@ -26,19 +26,13 @@ const Employee = () => {
 					transition={{ duration: 1 }}
 				>
 					<StatCard
-						name='مجموع المستخدمين'
+						name='مجموع الموظفين'
 						icon={UsersIcon}
 						value={userStats.totalUsers.toLocaleString()}
 						color='#6366F1'
 					/>
-					<StatCard name='المستخدمين الجدد' icon={UserPlus} value={userStats.newUsersToday} color='#10B981' />
-					<StatCard
-						name='المستخدمين النشطين'
-						icon={UserCheck}
-						value={userStats.activeUsers.toLocaleString()}
-						color='#F59E0B'
-					/>
-					<StatCard name='نقاط المستخدمين' icon={HandCoins } value={userStats.userPoints} color='#EF4444' />
+					<StatCard name='الموظفين الجدد' icon={UserPlus} value={userStats.newUsersToday} color='#10B981' />
+					
 				</motion.div>
 
 				<EmployeeTable />
