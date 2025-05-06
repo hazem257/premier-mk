@@ -2,16 +2,16 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Edit, Trash2, Plus } from "lucide-react";
 
-const initialUserData = [
-  { id: 1, name: "John Doe", email: "john@example.com", Income: 1000, status: "manager" },
+const initialEmployeeData = [
+  { id: 1, name: "John Doe", email: "john@example.com", Income: 1000, status: "Manager" },
 ];
 
 const EmployeeTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(initialUserData);
-  const [Employees, setUsers] = useState(initialUserData);
+  const [filteredEmployees, setFilteredEmployees] = useState(initialEmployeeData);
+  const [Employees, setEmployees] = useState(initialEmployeeData);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentEmployee, setCurrentEmployee] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,7 +25,7 @@ const EmployeeTable = () => {
         Employee.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         Employee.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredUsers(filtered);
+    setFilteredEmployees(filtered);
   }, [searchTerm, Employees]);
 
   const handleInputChange = (e) => {
@@ -36,8 +36,8 @@ const EmployeeTable = () => {
     });
   };
 
-  const handleAddUser = () => {
-    setCurrentUser(null);
+  const handleAddEmployee = () => {
+    setCurrentEmployee(null);
     setFormData({
       name: "",
       email: "",
@@ -47,8 +47,8 @@ const EmployeeTable = () => {
     setIsModalOpen(true);
   };
 
-  const handleEditUser = (Employee) => {
-    setCurrentUser(Employee);
+  const handleEditEmployee = (Employee) => {
+    setCurrentEmployee(Employee);
     setFormData({
       name: Employee.name,
       email: Employee.email,
@@ -61,12 +61,12 @@ const EmployeeTable = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (currentUser) {
+    if (currentEmployee) {
       // Update existing Employee
       const updatedEmployees= Employees.map(Employee => 
-        Employee.id === currentUser.id ? { ...formData, id: currentUser.id } : Employee
+        Employee.id === currentEmployee.id ? { ...formData, id: currentEmployee.id } : Employee
       );
-      setUsers(updatedUsers);
+      setEmployees(updatedEmployees);
     } else {
       // Add new Employee
       const newEmployees = {
@@ -74,15 +74,15 @@ const EmployeeTable = () => {
         id: Employee.length > 0 ? Math.max(...Employees.map(u => u.id)) + 1 : 1,
         Income: parseInt(formData.Income) || 0
       };
-      setUsers([...Employees, newEmployees]);
+      setEmployees([...Employees, newEmployees]);
     }
     
     setIsModalOpen(false);
   };
 
-  const handleDeleteUser = (id) => {
+  const handleDeleteEmployee = (id) => {
     if (window.confirm("هل أنت متأكد من حذف هذا الموظف ؟")) {
-      setUsers(Employees.filter(Employee => Employee.id !== id));
+      setEmployees(Employees.filter(Employee => Employee.id !== id));
     }
   };
 
@@ -107,7 +107,7 @@ const EmployeeTable = () => {
             <Search className='absolute left-3 top-2.5 text-gray-400' size={18} />
           </div>
           <button 
-            onClick={handleAddUser}
+            onClick={handleAddEmployee}
             className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2'
           >
             <Plus size={18} />
@@ -139,7 +139,7 @@ const EmployeeTable = () => {
           </thead>
 
           <tbody className='divide-y divide-gray-700' >
-            {filteredUsers.map((Employee) => (
+            {filteredEmployees.map((Employee) => (
               <motion.tr
                 key={Employee.id}
                 initial={{ opacity: 0 }}
@@ -165,7 +165,7 @@ const EmployeeTable = () => {
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <span
                     className={`px-7 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      Employee.status === "Active"
+                      Employee.status === "Manager"
                         ? "bg-green-800 text-green-100"
                         : "bg-red-800 text-red-100"
                     }`}
@@ -175,13 +175,13 @@ const EmployeeTable = () => {
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
                   <button 
-                    onClick={() => handleEditUser(Employee)}
+                    onClick={() => handleEditEmployee(Employee)}
                     className='text-indigo-400 hover:text-indigo-300 mr-2'
                   >
                     <Edit size={18} />
                   </button>
                   <button 
-                    onClick={() => handleDeleteUser(Employee.id)}
+                    onClick={() => handleDeleteEmployee(Employee.id)}
                     className='text-red-400 hover:text-red-300'
                   >
                     <Trash2 size={18} />
@@ -202,7 +202,7 @@ const EmployeeTable = () => {
             animate={{ opacity: 1, scale: 1 }}
           >
             <h3 className="text-lg font-semibold text-gray-100 mb-4">
-              {currentUser ? "تعديل الموظف " : "إضافة موظف جديد"}
+              {currentEmployee ? "تعديل الموظف " : "إضافة موظف جديد"}
             </h3>
             
             <form onSubmit={handleSubmit}>
@@ -234,12 +234,24 @@ const EmployeeTable = () => {
                 <label className="block text-gray-300 text-sm mb-2">المرتب</label>
                 <input
                   type="number"
-                  name="points"
-                  value={formData.points}
+                  name="Income"
+                  value={formData.Income}
                   onChange={handleInputChange}
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-300 text-sm mb-2">القسم</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Manager">Manager</option>
+                  <option value="Employee"> Employee</option>
+                </select>
               </div>
               
               <div className="flex justify-end gap-3">
@@ -254,7 +266,7 @@ const EmployeeTable = () => {
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
                 >
-                  {currentUser ? "حفظ التعديلات" : "إضافة موظف"}
+                  {currentEmployee ? "حفظ التعديلات" : "إضافة موظف"}
                 </button>
               </div>
             </form>
