@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Edit, Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Edit, Trash2, Plus, ChevronDown, ChevronUp, Download } from "lucide-react";
+import * as XLSX from 'xlsx';
 
-// بيانات أولية أكثر واقعية
 const initialUserData = [
-  { id: 1, name: "أحمد محمد", email: "ahmed@example.com", points: 150, status: "Active", joinDate: "2023-01-15" },
-  { id: 2, name: "سارة علي", email: "sara@example.com", points: 230, status: "Active", joinDate: "2023-02-20" },
-  { id: 3, name: "محمد خالد", email: "mohamed@example.com", points: 75, status: "Inactive", joinDate: "2023-03-10" },
+  { id: 1, name: "أحمد محمد", email: "ahmed@example.com", points: 150, status: "Active", joinDate: "2023-01-15" ,EndDate: "2023-01-15"},
+  { id: 2, name: "سارة علي", email: "sara@example.com", points: 230, status: "Active", joinDate: "2023-02-20",EndDate: "2023-01-15" },
+  { id: 3, name: "محمد خالد", email: "mohamed@example.com", points: 75, status: "Inactive", joinDate: "2023-03-10",EndDate: "2023-01-15" },
 ];
 
 const UserOverview = () => {
@@ -20,13 +20,12 @@ const UserOverview = () => {
     email: "",
     points: "",
     status: "Active",
-    joinDate: new Date().toISOString().split('T')[0] // تاريخ اليوم كقيمة افتراضية
+    joinDate: new Date().toISOString().split('T')[0]
   });
   
-  // حالة الترتيب
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
-  // تصفية المستخدمين عند البحث أو تغيير البيانات
+  // التصفية عند تغيير البحث أو البيانات
   useEffect(() => {
     const filtered = users.filter(user => 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -35,7 +34,7 @@ const UserOverview = () => {
     setFilteredUsers(filtered);
   }, [searchTerm, users]);
 
-  // دالة لترتيب البيانات
+  // دالة الترتيب
   const requestSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -44,25 +43,56 @@ const UserOverview = () => {
     setSortConfig({ key, direction });
   };
 
-  // تطبيق الترتيب على البيانات
+  // تطبيق الترتيب
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
+    if (!sortConfig.key) return 0;
+    
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+    
+    if (aValue < bValue) {
       return sortConfig.direction === 'ascending' ? -1 : 1;
     }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
+    if (aValue > bValue) {
       return sortConfig.direction === 'ascending' ? 1 : -1;
     }
     return 0;
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+  // أيقونة الترتيب
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === 'ascending' ? 
+      <ChevronUp className="inline ml-1" size={16} /> : 
+      <ChevronDown className="inline ml-1" size={16} />;
   };
 
+  // تصدير إلى Excel
+  const handleExportExcel = () => {
+    if (sortedUsers.length === 0) {
+      alert("لا توجد بيانات للتصدير");
+      return;
+    }
+
+    const data = [
+      ["الاسم", "البريد الإلكتروني", "النقاط", "الحالة", "تاريخ الانضمام","تاريخ أخر معاملة"],
+      ...sortedUsers.map(user => [
+        user.name,
+        user.email,
+        user.points,
+        user.status === "Active" ? "نشط" : "غير نشط",
+        new Date(user.joinDate).toLocaleDateString('ar-EG') ,
+        new Date(user.EndDate).toLocaleDateString('ar-EG') ,
+      ])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "المستخدمين");
+    XLSX.writeFile(wb, "المستخدمين.xlsx");
+  };
+
+  // إضافة مستخدم جديد
   const handleAddUser = () => {
     setCurrentUser(null);
     setFormData({
@@ -70,11 +100,13 @@ const UserOverview = () => {
       email: "",
       points: "",
       status: "Active",
-      joinDate: new Date().toISOString().split('T')[0]
+      joinDate: new Date().toISOString().split('T')[0],
+      EndDate: new Date().toISOString().split('T')[0],
     });
     setIsModalOpen(true);
   };
 
+  // تعديل مستخدم
   const handleEditUser = (user) => {
     setCurrentUser(user);
     setFormData({
@@ -82,11 +114,20 @@ const UserOverview = () => {
       email: user.email,
       points: user.points,
       status: user.status,
-      joinDate: user.joinDate
+      joinDate: user.joinDate,
+      EndDate: user.EndDate
     });
     setIsModalOpen(true);
   };
 
+  // حذف مستخدم
+  const handleDeleteUser = (id) => {
+    if (window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
+      setUsers(users.filter(user => user.id !== id));
+    }
+  };
+
+  // حفظ البيانات
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -100,7 +141,7 @@ const UserOverview = () => {
       // إضافة مستخدم جديد
       const newUser = {
         ...formData,
-        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+        id: Math.max(...users.map(u => u.id)) + 1,
         points: parseInt(formData.points) || 0
       };
       setUsers([...users, newUser]);
@@ -109,18 +150,13 @@ const UserOverview = () => {
     setIsModalOpen(false);
   };
 
-  const handleDeleteUser = (id) => {
-    if (window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
-      setUsers(users.filter(user => user.id !== id));
-    }
-  };
-
-  // عرض أيقونة الترتيب
-  const renderSortIcon = (key) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'ascending' ? 
-      <ChevronUp className="inline ml-1" size={16} /> : 
-      <ChevronDown className="inline ml-1" size={16} />;
+  // تغيير حقول النموذج
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
   };
 
   return (
@@ -131,6 +167,7 @@ const UserOverview = () => {
       transition={{ delay: 0.2 }}
       style={{width:"100%"}}
     >
+      {/* شريط البحث والأزرار */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4" style={{width:"100%"}}>
         <h2 className="text-xl font-semibold text-gray-100">إدارة المستخدمين</h2>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
@@ -144,51 +181,58 @@ const UserOverview = () => {
             />
             <Search className="absolute left-1 top-2.5 text-gray-400" size={18} />
           </div>
-        
+          
         </div>
       </div>
 
+      {/* الجدول */}
       <div className="overflow-x-auto rounded-lg border border-gray-700" style={{width:"100%"}}>
         <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-75">
-            <tr>
+          <thead className="bg-gray-700">
+            <tr style={{display:"flex" , justifyContent:"space-between", width:"100%" , alignItems:"center"}}>
               <th 
-                className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer"
                 onClick={() => requestSort('name')}
               >
                 الاسم {renderSortIcon('name')}
               </th>
               <th 
-                className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer"
                 onClick={() => requestSort('email')}
               >
                 البريد الإلكتروني {renderSortIcon('email')}
               </th>
               <th 
-                className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer"
                 onClick={() => requestSort('points')}
               >
                 النقاط {renderSortIcon('points')}
               </th>
               <th 
-                className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer"
                 onClick={() => requestSort('status')}
               >
                 الحالة {renderSortIcon('status')}
               </th>
               <th 
-                className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer"
                 onClick={() => requestSort('joinDate')}
               >
                 تاريخ الانضمام {renderSortIcon('joinDate')}
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <th 
+                className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('EndDate')}
+              >
+                أخر تعامل{renderSortIcon('EndDate')}
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
                 الإجراءات
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="bg-gray-800 divide-y divide-gray-700">
             {sortedUsers.length > 0 ? (
               sortedUsers.map((user) => (
                 <motion.tr
@@ -197,9 +241,10 @@ const UserOverview = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                   className="hover:bg-gray-700"
+                  style={{display:"flex" , justifyContent:"space-between", width:"100%" , alignItems:"center"}}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="text-sm font-medium text-gray-100">{user.name}</div>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-white">
+                    {user.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-300">
                     {user.email}
@@ -210,18 +255,17 @@ const UserOverview = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <span
-                      className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                        user.status === "Active"
-                          ? "bg-green-800 text-green-100"
-                          : "bg-red-800 text-red-100"
-                      }`}
-                    >
+                    <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
+                      user.status === "Active" ? "bg-green-800 text-green-100" : "bg-red-800 text-red-100"
+                    }`}>
                       {user.status === "Active" ? "نشط" : "غير نشط"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-300">
                     {new Date(user.joinDate).toLocaleDateString('ar-EG')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-300">
+                    {new Date(user.EndDate).toLocaleDateString('ar-EG')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-300">
                     <div className="flex justify-end gap-2">
@@ -252,27 +296,36 @@ const UserOverview = () => {
             )}
           </tbody>
         </table>
-        
       </div>
-      <div className="btn-cont" style={{width:"100%", display:"flex", alignItems:"center" ,justifyContent:"center"}}>
-          <button 
-            onClick={handleAddUser}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full md:w-auto justify-center"
+
+      {/* زر إضافة مستخدم جديد */}
+      <div className="mt-4 flex justify-center"style={{padding:'3px', justifyContent:"space-between", }}>
+        <button 
+          onClick={handleAddUser}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+        >
+          <Plus size={18} />
+          مستخدم جديد
+        </button>
+        <button 
+            onClick={handleExportExcel}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full md:w-auto justify-center"
           >
-            <Plus size={18} />
-            مستخدم جديد
-          </button></div>
-    
-      {/* Modal لإضافة/تعديل مستخدم */}
+            <Download size={18} />
+            تصدير إلى Excel
+          </button>
+      </div>
+
+      {/* نافذة التعديل/الإضافة */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <motion.div 
-            className="bg-white bg-opacity-10 rounded-lg p-6 w-full max-w-md border border-gray-700"
+            className="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-100">
+              <h3 className="text-lg font-semibold text-white">
                 {currentUser ? "تعديل المستخدم" : "إضافة مستخدم جديد"}
               </h3>
               <button 
@@ -283,7 +336,7 @@ const UserOverview = () => {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4 ">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">الاسم بالكامل</label>
                 <input
@@ -345,7 +398,17 @@ const UserOverview = () => {
                   required
                 />
               </div>
-              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">تاريخ أخر معاملة</label>
+                <input
+                  type="date"
+                  name="EndDate"
+                  value={formData.EndDate}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
