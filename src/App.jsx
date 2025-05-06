@@ -8,7 +8,8 @@ import UsersPage from './pages/UsersPage';
 import SalesPage from './pages/SalesPage';
 import OrdersPage from './pages/OrdersPage';
 import Suppliers from './pages/Suppliers';
-import Login from './pages/LogIn'; // تأكد من المسار الصحيح
+import Login from './pages/LogIn'; 
+import Employee from './pages/Employee';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -54,6 +55,7 @@ function App() {
         />
         <Route path='/suppliers' element={<Suppliers />} />
         <Route path='/users' element={<UsersPage />} />
+        <Route path='/employee' element={<Employee />} />
         <Route path='/sales' element={<SalesPage />} />
         <Route 
           path='/orders' 
