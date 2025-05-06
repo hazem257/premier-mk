@@ -264,7 +264,7 @@ const OrdersTable = ({ orders, setOrders, products = [] }) => {
       <div className='overflow-x-auto'>
         <table className='min-w-full divide-y divide-gray-700'>
           <thead className="bg-gray-800">
-            <tr>
+            <tr style={{display:"flex" , justifyContent:"space-between", width:"100%" , alignItems:"center"}}>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">رقم الطلب</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">صاحب الطلب</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">المجموع</th>
@@ -281,6 +281,7 @@ const OrdersTable = ({ orders, setOrders, products = [] }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="hover:bg-gray-800"
+                style={{display:"flex" , justifyContent:"space-between", width:"100%" , alignItems:"center"}}
               >
                 <td className="px-6 py-4 text-right text-sm text-gray-100">#{order.id}</td>
                 <td className="px-6 py-4 text-right text-sm text-gray-300">{order.owner}</td>
