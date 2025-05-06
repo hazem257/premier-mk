@@ -2,6 +2,7 @@ import { BarChart2, DollarSign, Menu, SquareChartGantt, ShoppingBag, ShoppingCar
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import Employee from "../../pages/Employee";
 
 const SIDEBAR_ITEMS = [
   {
@@ -10,7 +11,7 @@ const SIDEBAR_ITEMS = [
     color: "#6366f1",
     href: "/",
   },
-  { name: "الموظفين", icon: SquareChartGantt, color: "#8B5CF6", href: "/employee" },
+  { name: "الموظفين", icon:Users, color: "green", href: "/employee" },
   { name: "المنتجات", icon: ShoppingBag, color: "#8B5CF6", href: "/products" },
   { name: "الموردين", icon: SquareChartGantt, color: "#8B5CF6", href: "/suppliers" },
   { name: "المستخدمين", icon: Users, color: "#EC4899", href: "/users" },
